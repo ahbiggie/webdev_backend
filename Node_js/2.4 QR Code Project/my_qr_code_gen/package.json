@@ -1,0 +1,17 @@
+{
+  "name": "my_qr_code_gen",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type":"module",
+  "keywords": [],
+  "author": "Yusuf",
+  "license": "ISC",
+  "description": "this is for a QR generator",
+  "dependencies": {
+    "inquirer": "^12.4.2",
+    "qr-image": "^3.2.0"
+  }
+}
