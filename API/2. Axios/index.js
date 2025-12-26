@@ -15,6 +15,7 @@ app.get("/", async (req, res) => {
   try {
     const response = await axios.get("https://bored-api.appbrewery.com/random");
     const result = response.data;
+    // console.log(result);
     res.render("index.ejs", { data: result });
   } catch (error) {
     console.error("Failed to make request:", error.message);
@@ -25,16 +26,34 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/", async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
+  try {
+    const response = await axios.get("https://bored-api.appbrewery.com/filter", {
+      params: {
+        type: req.body.type,
+        participants: req.body.participants
+      }
+    });
+    // API returns a new array of activities
+    const activities = response.data;
+    // console.log(`found ${activities.length} activities`);
+    // Pick a random activity from the array
+    const randomIndex = Math.floor(Math.random() * activities.length);
+    const randomActivity = activities[randomIndex];
+    // render the index.ejs template with the random activity
+    res.render("index.ejs", { data: randomActivity });
+  }
+  catch (error) {
+    // Handle error (including 404 - no activities found)
+    console.log("Error:", error.message);
+    // check if it's a 404 error (no matching activities)
+    if (error.response && error.response.status === 404) {
+      res.render("index.ejs", { error: "No activities found matching your criteria" });
 
-  // Step 2: Play around with the drop downs and see what gets logged.
-  // Use axios to make an API request to the /filter endpoint. Making
-  // sure you're passing both the type and participants queries.
-  // Render the index.ejs file with a single *random* activity that comes back
-  // from the API request.
-  // Step 3: If you get a 404 error (resource not found) from the API request.
-  // Pass an error to the index.ejs to tell the user:
-  // "No activities that match your criteria."
+    } else {
+      res.render("index.ejs", { error: `failed to fetch activities: ${error.message}` });
+    }
+  }
 });
 
 app.listen(port, () => {
