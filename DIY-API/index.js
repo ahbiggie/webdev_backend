@@ -100,6 +100,12 @@ app.patch("/jokes/:id", (req, res) => {
   // Find the index of the joke with matching id
   const searchIndex = jokes.findIndex((joke) => joke.id === jokeId);
 
+  // Check if the joke was found in the array
+  if (searchIndex === -1) {
+    // Return 404 error if joke with given ID doesn't exist
+    return res.status(404).json({ error: "Joke not found." });
+  }
+
   // Create an updated joke object, merging existing data with new data
   const updatedJoke = {
     ...jokes[searchIndex],
@@ -108,16 +114,46 @@ app.patch("/jokes/:id", (req, res) => {
     // Update jokeType if provided, otherwise keep existing value
     jokeType: req.body.jokeType || jokes[searchIndex].jokeType,
   }
+
   // Replace the joke at the found index with the updated joke
   jokes[searchIndex] = updatedJoke;
   // Return the updated joke as JSON
   res.json(updatedJoke);
-}
-)
+})
 
 //7. DELETE Specific joke
+app.delete("/jokes/:id", (req, res) => {
+  // Parse the id parameter from the URL to an integer
+  const jokeId = parseInt(req.params.id);
+  // Find the index of the joke with matching id
+  const searchIndex = jokes.findIndex((joke) => joke.id === jokeId);
+  // check if the joke was found in the array
+  if (searchIndex > -1) {
+    // Remove the joke from the array
+    const deletedJoke = jokes.splice(searchIndex, 1);
+    // Return the deleted joke as JSON
+    res.json(deletedJoke[0])
+  } else {
+    // Return 404 error if joke with given ID doesn't exist
+    res.status(404).json({ error: "Joke not found." })
+  }
+})
 
 //8. DELETE All jokes
+app.delete("/all", (req, res) => {
+  // Extract the masterKey parameter from the URL query string
+  const userKey = req.query.key;
+  // Check if the provided key matches the master key
+  if (userKey !== masterKey) {
+    // return 403 error if the key is incorrect
+    return res.status(403).json({ error: "Forbidden. Invalid master key." });
+  } else {
+    // clear the jokes array
+    jokes = [];
+    // return a success message
+    res.json({ message: "All jokes have been deleted successfully." })
+  }
+})
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
