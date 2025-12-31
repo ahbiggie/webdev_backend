@@ -36,23 +36,84 @@ app.get("/filter", (req, res) => {
   // Extract the jokeType parameter from the URL query string
   const jokeType = req.query.type;
   // Filter jokes array to find all jokes matching the specified type (case-insensitive)
+  // Check if the type parameter was provided in the query string
   if (!jokeType) {
     return res.status(400).json({ error: "Please provide a type parameter." });
   }
 
+  // Filter jokes array to find all jokes matching the specified type (case-insensitive)
   const filteredJokes = jokes.filter(joke => joke.jokeType.toLowerCase() === jokeType.toLowerCase());
 
+  // Check if any jokes were found
   if (filteredJokes.length > 0) {
+    // Return the filtered jokes as JSON
     res.json(filteredJokes);
   } else {
+    // Return 404 error if no jokes found for the specified type
     res.status(404).json({ error: `No jokes found for the type: ${jokeType}` });
   }
 });
+
 //4. POST a new joke
+app.post("/jokes", (req, res) => {
+  // Create a new joke object with auto-incremented id
+  const newJoke = {
+    id: jokes.length + 1,
+    jokeText: req.body.jokeText,
+    jokeType: req.body.jokeType,
+  }
+  // Add the new joke to the jokes array
+  jokes.push(newJoke);
+  // Return the newly created joke as JSON
+  res.json(newJoke);
+})
 
 //5. PUT a joke
+app.put("/jokes/:id", (req, res) => {
+  // Parse the id parameter from the URL to an integer
+  const jokeId = parseInt(req.params.id);
+  // Find the index of the joke with matching id
+  const searchIndex = jokes.findIndex((joke) => joke.id === jokeId);
+
+  // Check if the joke was found in the array
+  if (searchIndex === -1) {
+    // Return 404 error if joke with given ID doesn't exist
+    return res.status(404).json({ error: "Joke not found." });
+  }
+
+  // Create a replacement joke object with the provided data
+  const replaceJoke = {
+    id: jokeId,
+    jokeText: req.body.jokeText,
+    jokeType: req.body.jokeType,
+  }
+  // Replace the joke at the found index with the new joke
+  jokes[searchIndex] = replaceJoke;
+  // Return the replaced joke as JSON
+  res.json(replaceJoke);
+})
 
 //6. PATCH a joke
+app.patch("/jokes/:id", (req, res) => {
+  // Parse the id parameter from the URL to an integer
+  const jokeId = parseInt(req.params.id);
+  // Find the index of the joke with matching id
+  const searchIndex = jokes.findIndex((joke) => joke.id === jokeId);
+
+  // Create an updated joke object, merging existing data with new data
+  const updatedJoke = {
+    ...jokes[searchIndex],
+    // Update jokeText if provided, otherwise keep existing value
+    jokeText: req.body.jokeText || jokes[searchIndex].jokeText,
+    // Update jokeType if provided, otherwise keep existing value
+    jokeType: req.body.jokeType || jokes[searchIndex].jokeType,
+  }
+  // Replace the joke at the found index with the updated joke
+  jokes[searchIndex] = updatedJoke;
+  // Return the updated joke as JSON
+  res.json(updatedJoke);
+}
+)
 
 //7. DELETE Specific joke
 
