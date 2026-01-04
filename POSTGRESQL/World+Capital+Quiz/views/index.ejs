@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head section: Contains metadata and stylesheet links -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capital City Quiz</title>
+    <!-- Link to external CSS file for styling -->
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+
+  <!-- Main application body -->
+  <body id="app">
+    <!-- Quiz form: Submits user's answer to /submit endpoint via POST -->
+    <form class="container" action="/submit" method="post">
+      <!-- Score display section -->
+      <div class="horizontal-container">
+        <h3>
+          Total Score:
+          <!-- Display current score, defaulting to "0" if not available using EJS locals -->
+          <span id="score"> <%= locals.totalScore ? totalScore : "0" %> </span>
+        </h3>
+      </div>
+
+      <!-- Display the current country name from the question object -->
+      <h1 id="countryName"><%=question.country %></h1>
+      <!-- Answer input section -->
+      <div class="answer-container">
+        <!-- Input field for user to enter the capital city
+           - autofocus: automatically focuses on page load
+           - autocomplete="off": prevents browser from suggesting previous answers -->
+        <input
+          type="text"
+          name="answer"
+          id="userInput"
+          placeholder="Enter the capital"
+          autofocus
+          autocomplete="off"
+        />
+      </div>
+      <!-- Submit button with conditional feedback icons based on answer correctness -->
+      <button type="submit">
+        SUBMIT
+        <!-- If answer was correct (wasCorrect is true), show checkmark -->
+        <% if(locals.wasCorrect){ %>
+        <span class="checkmark">✔</span>
+        <!-- If answer was incorrect (wasCorrect is false), show cross mark -->
+        <% } else if (locals.wasCorrect===false) { %>
+        <span class="cross" id="error">✖</span>
+        <% } %>
+      </button>
+    </form>
+    <!-- Client-side JavaScript for game over logic -->
+    <script>
+      /**
+       * Game Over Detection Script
+       * Checks if the user's answer was incorrect and displays game over screen
+       */
+
+      // Get the wasCorrect value from server (converted to string in EJS)
+      var wasCorrect = "<%= locals.wasCorrect %>"
+      console.log(wasCorrect)
+
+      // If the answer was incorrect (false), end the game
+      if (wasCorrect === "false") {
+        // Show alert with final score
+        alert("Game over! Final best score: <%= locals.totalScore %>")
+        // Replace the entire app content with a restart button
+        document.getElementById("app").innerHTML =
+          '<a href="/" class="restart-button">Restart</a>'
+      }
+    </script>
+  </body>
+</html>
