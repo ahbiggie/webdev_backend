@@ -23,7 +23,7 @@ const db = new pg.Client({
   user: "postgres",      // PostgreSQL username
   host: "localhost",      // Database host
   database: "world",      // Database name
-  password: "Password",     // Database password
+  password: "123456",     // Database password
   port: 5432,             // PostgreSQL port (default: 5432)
 });
 
